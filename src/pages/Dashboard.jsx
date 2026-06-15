@@ -1,4 +1,4 @@
-import { Map, House, Leaf } from "lucide-react";
+import { Map, House, Leaf, Recycle } from "lucide-react";
 
 import Navbar from "../components/Navbar";
 import Card from "../components/Card";
@@ -44,12 +44,11 @@ export default function Dashboard({
             title="Explore Homestays"
             description="Discover local stays and authentic cultural experiences."
           />
-
-          <Card
-            icon={<Leaf size={45} className="text-green-500" />}
-            title="Sustainability Tips"
-            description="Learn responsible travel habits and reduce environmental impact."
-          />
+<Card
+  icon={<Recycle size={50} color="#22c55e" />}
+  title="Sustainability Tips"
+  description="Learn responsible travel habits and reduce environmental impact."
+/>
         </div>
       </section>
 

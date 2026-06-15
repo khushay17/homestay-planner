@@ -4,13 +4,18 @@ import Navbar from "../components/Navbar";
 import Card from "../components/Card";
 import Footer from "../components/Footer";
 
-export default function Dashboard({ user, onLogout }) {
+export default function Dashboard({
+  user,
+  onLogout,
+  onAbout,
+}) {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar
-        user={user}
-        onLogout={onLogout}
-      />
+  user={user}
+  onLogout={onLogout}
+  onAbout={onAbout}
+/>
 
       <section className="max-w-6xl mx-auto px-6 py-16">
         <div className="bg-white rounded-3xl shadow-lg p-10 mb-12">

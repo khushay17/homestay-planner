@@ -1,6 +1,10 @@
 import { User } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({
+  user,
+  onLogout,
+  onAbout,
+}) {
   return (
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -9,17 +13,19 @@ export default function Navbar() {
         </h1>
 
         <div className="flex items-center gap-6">
-          <a href="#" className="hover:text-emerald-600">
-            Home
-          </a>
-
-          <a href="#" className="hover:text-emerald-600">
+          <button
+            onClick={onAbout}
+            className="hover:text-emerald-600"
+          >
             About
-          </a>
+          </button>
 
-          <a href="#" className="hover:text-emerald-600">
-            Dashboard
-          </a>
+          <button
+            onClick={onLogout}
+            className="hover:text-red-500"
+          >
+            Logout
+          </button>
 
           <User size={22} />
         </div>

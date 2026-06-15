@@ -3,6 +3,7 @@ import { useState } from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import About from "./pages/About";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -26,16 +27,20 @@ function App() {
       />
     );
   }
+  if (page === "about") {
+  return <About onBack={() => setPage("dashboard")} />;
+}
 
-  return (
-    <Dashboard
-      user={user}
-      onLogout={() => {
-        setUser("");
-        setPage("home");
-      }}
-    />
-  );
+return (
+  <Dashboard
+    user={user}
+    onLogout={() => {
+      setUser("");
+      setPage("home");
+    }}
+    onAbout={() => setPage("about")}
+  />
+);
 }
 
 export default App;

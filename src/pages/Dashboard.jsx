@@ -8,6 +8,8 @@ export default function Dashboard({
   user,
   onLogout,
   onAbout,
+  onPlanTrip,
+  onHomestays,
 }) {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -33,17 +35,23 @@ export default function Dashboard({
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
-          <Card
-            icon={<Map size={45} className="text-teal-500" />}
-            title="Plan a Trip"
-            description="Create eco-friendly travel plans based on your destination."
-          />
+          <div
+  onClick={onPlanTrip}
+  className="cursor-pointer hover:scale-105 transition"
+>
+  <Card
+    icon={<Map size={45} className="text-teal-500" />}
+    title="Plan a Trip"
+    description="Create eco-friendly travel plans based on your destination."
+  />
+</div>
 
           <Card
-            icon={<House size={45} className="text-blue-500" />}
-            title="Explore Homestays"
-            description="Discover local stays and authentic cultural experiences."
-          />
+  icon={<House size={45} className="text-blue-500" />}
+  title="Explore Homestays"
+  description="Discover local stays and authentic cultural experiences."
+  onClick={onHomestays}
+/>
 <Card
   icon={<Recycle size={50} color="#22c55e" />}
   title="Sustainability Tips"

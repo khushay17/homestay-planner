@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import MyTrips from "./pages/MyTrips";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -86,17 +87,34 @@ function App() {
     />
   );
 }
+
+if (page === "myTrips") {
+  return (
+    <MyTrips
+      user={user}
+      onLogout={() => {
+        setUser("");
+        setPage("home");
+      }}
+      onAbout={() => setPage("about")}
+      onBack={() => setPage("dashboard")}
+    />
+  );
+}
+
 return(
  <Dashboard
   user={user}
-  onLogout={()=>{
+  onLogout={() => {
     setUser("");
     setPage("home");
   }}
-  onAbout={()=>setPage("about")}
-  onPlanTrip={()=>setPage("planTrip")}
-  onHomestays={()=>setPage("homestays")}
+  onAbout={() => setPage("about")}
+  onPlanTrip={() => setPage("planTrip")}
+  onHomestays={() => setPage("homestays")}
+  onMyTrips={() => setPage("myTrips")}
 />
+
 );
 }
 

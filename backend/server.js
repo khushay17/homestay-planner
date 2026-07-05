@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -7,8 +9,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let trips = [];
+mongoose.connect(process.env.MONGO_URI)
+.then(() => {
+    console.log("MongoDB Connected");
+})
+.catch((err) => {
+    console.log(err);
+});
 
+const Trip = require("./models/Trip");
 // ------------------------------
 // SAMPLE HOMESTAYS
 // ------------------------------
@@ -206,132 +215,153 @@ function generateItinerary(destination, days) {
 }
 
 // ------------------------------
-// TRIP APIs
+// TRIP APIs (MongoDB + Mongoose)
 // ------------------------------
 
-app.get("/api/trips", (req, res) => {
-  res.json(trips);
+// Get all trips
+app.get("/api/trips", async (req, res) => {
+  try {
+    const trips = await Trip.find();
+    res.json(trips);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
-app.get("/api/trips/search", (req, res) => {
+// Search trips
+app.get("/api/trips/search", async (req, res) => {
+  try {
+    const q = req.query.q || "";
 
-  const q = (req.query.q || "").toLowerCase();
+    const trips = await Trip.find({
+      destination: { $regex: q, $options: "i" }
+    });
 
-  const result = trips.filter((trip) =>
-    trip.destination.toLowerCase().includes(q)
-  );
-
-  res.json(result);
+    res.json(trips);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
-app.get("/api/trips/:id", (req, res) => {
+// Get single trip
+app.get("/api/trips/:id", async (req, res) => {
+  try {
+    const trip = await Trip.findById(req.params.id);
 
-  const trip = trips.find(
-    t => t.id === Number(req.params.id)
-  );
+    if (!trip) {
+      return res.status(404).json({
+        message: "Trip not found"
+      });
+    }
 
-  if (!trip) {
-    return res.status(404).json({
-      message: "Trip not found"
+    res.json(trip);
+
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
     });
   }
-
-  res.json(trip);
 });
 
-app.post("/api/trips", (req, res) => {
+// Create trip
+app.post("/api/trips", async (req, res) => {
 
-  const {
-    destination,
-    days,
-    travelers,
-    budget,
-    travelStyle,
-    accommodation,
-    month,
-    activities,
-    notes
-  } = req.body;
+  try {
 
-  if (!destination || !days) {
-    return res.status(400).json({
-      message: "Destination and days are required"
-    });
-  }
-
-  const newTrip = {
-
-    id: trips.length + 1,
-
-    destination,
-
-    days: Number(days),
-
-    travelers: Number(travelers),
-
-    budget,
-
-    travelStyle,
-
-    accommodation,
-
-    month,
-
-    activities: activities || [],
-
-    notes: notes || "",
-
-    itinerary: generateItinerary(
+    const {
       destination,
-      Number(days)
-    )
+      days,
+      travelers,
+      budget,
+      travelStyle,
+      accommodation,
+      month,
+      activities,
+      notes
+    } = req.body;
 
-  };
+    const trip = new Trip({
+      destination,
+      days,
+      travelers,
+      budget,
+      travelStyle,
+      accommodation,
+      month,
+      activities,
+      notes,
+      itinerary: generateItinerary(destination, Number(days))
+    });
 
-  trips.push(newTrip);
+    const savedTrip = await trip.save();
 
-  res.status(201).json(newTrip);
-});
+    res.status(201).json(savedTrip);
 
-app.put("/api/trips/:id", (req, res) => {
-
-  const trip = trips.find(
-    t => t.id === Number(req.params.id)
-  );
-
-  if (!trip) {
-    return res.status(404).json({
-      message: "Trip not found"
+  } catch (err) {
+    res.status(400).json({
+      message: err.message
     });
   }
 
-  Object.assign(trip, req.body);
-
-  trip.itinerary = generateItinerary(
-    trip.destination,
-    Number(trip.days)
-  );
-
-  res.json(trip);
 });
 
-app.delete("/api/trips/:id", (req, res) => {
+// Update trip
+app.put("/api/trips/:id", async (req, res) => {
 
-  const index = trips.findIndex(
-    t => t.id === Number(req.params.id)
-  );
+  try {
 
-  if (index === -1) {
-    return res.status(404).json({
-      message: "Trip not found"
+    const trip = await Trip.findById(req.params.id);
+
+    if (!trip) {
+      return res.status(404).json({
+        message: "Trip not found"
+      });
+    }
+
+    Object.assign(trip, req.body);
+
+    trip.itinerary = generateItinerary(
+      trip.destination,
+      Number(trip.days)
+    );
+
+    const updatedTrip = await trip.save();
+
+    res.json(updatedTrip);
+
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
     });
   }
 
-  trips.splice(index, 1);
+});
 
-  res.json({
-    message: "Trip deleted successfully"
-  });
+// Delete trip
+app.delete("/api/trips/:id", async (req, res) => {
+
+  try {
+
+    const trip = await Trip.findById(req.params.id);
+
+    if (!trip) {
+      return res.status(404).json({
+        message: "Trip not found"
+      });
+    }
+
+    await trip.deleteOne();
+
+    res.json({
+      message: "Trip deleted successfully"
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+  }
+
 });
 
 // ------------------------------

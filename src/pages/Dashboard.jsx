@@ -1,4 +1,4 @@
-import { Map, House, Leaf, Recycle } from "lucide-react";
+import { Map, House, Recycle, FolderOpen } from "lucide-react";
 
 import Navbar from "../components/Navbar";
 import Card from "../components/Card";
@@ -10,6 +10,7 @@ export default function Dashboard({
   onAbout,
   onPlanTrip,
   onHomestays,
+  onMyTrips,
 }) {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -52,6 +53,17 @@ export default function Dashboard({
   description="Discover local stays and authentic cultural experiences."
   onClick={onHomestays}
 />
+
+<div
+  onClick={onMyTrips}
+  className="cursor-pointer hover:scale-105 transition"
+>
+  <Card
+    icon={<FolderOpen size={45} className="text-purple-500" />}
+    title="My Trips"
+    description="View, edit and delete your saved trips."
+  />
+</div>  
 <Card
   icon={<Recycle size={50} color="#22c55e" />}
   title="Sustainability Tips"

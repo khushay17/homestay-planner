@@ -1,5 +1,5 @@
+import { useEffect } from "react";
 import { Map, House, Recycle, FolderOpen } from "lucide-react";
-
 import Navbar from "../components/Navbar";
 import Card from "../components/Card";
 import Footer from "../components/Footer";
@@ -12,13 +12,27 @@ export default function Dashboard({
   onHomestays,
   onMyTrips,
 }) {
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login first.");
+      onLogout();
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar
-  user={user}
-  onLogout={onLogout}
-  onAbout={onAbout}
-/>
+        user={user}
+        onLogout={() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          onLogout();
+        }}
+        onAbout={onAbout}
+      />
 
       <section className="max-w-6xl mx-auto px-6 py-16">
         <div className="bg-white rounded-3xl shadow-lg p-10 mb-12">
@@ -36,39 +50,42 @@ export default function Dashboard({
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
+
           <div
-  onClick={onPlanTrip}
-  className="cursor-pointer hover:scale-105 transition"
->
-  <Card
-    icon={<Map size={45} className="text-teal-500" />}
-    title="Plan a Trip"
-    description="Create eco-friendly travel plans based on your destination."
-  />
-</div>
+            onClick={onPlanTrip}
+            className="cursor-pointer hover:scale-105 transition"
+          >
+            <Card
+              icon={<Map size={45} className="text-teal-500" />}
+              title="Plan a Trip"
+              description="Create eco-friendly travel plans based on your destination."
+            />
+          </div>
 
           <Card
-  icon={<House size={45} className="text-blue-500" />}
-  title="Explore Homestays"
-  description="Discover local stays and authentic cultural experiences."
-  onClick={onHomestays}
-/>
+            icon={<House size={45} className="text-blue-500" />}
+            title="Explore Homestays"
+            description="Discover local stays and authentic cultural experiences."
+            onClick={onHomestays}
+          />
 
-<div
-  onClick={onMyTrips}
-  className="cursor-pointer hover:scale-105 transition"
->
-  <Card
-    icon={<FolderOpen size={45} className="text-purple-500" />}
-    title="My Trips"
-    description="View, edit and delete your saved trips."
-  />
-</div>  
-<Card
-  icon={<Recycle size={50} color="#22c55e" />}
-  title="Sustainability Tips"
-  description="Learn responsible travel habits and reduce environmental impact."
-/>
+          <div
+            onClick={onMyTrips}
+            className="cursor-pointer hover:scale-105 transition"
+          >
+            <Card
+              icon={<FolderOpen size={45} className="text-purple-500" />}
+              title="My Trips"
+              description="View, edit and delete your saved trips."
+            />
+          </div>
+
+          <Card
+            icon={<Recycle size={50} color="#22c55e" />}
+            title="Sustainability Tips"
+            description="Learn responsible travel habits and reduce environmental impact."
+          />
+
         </div>
       </section>
 

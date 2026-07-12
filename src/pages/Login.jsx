@@ -1,21 +1,58 @@
 import { useState } from "react";
 import { Leaf, Eye, EyeOff } from "lucide-react";
 
-export default function Login({ onLogin }) {
+const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] =
-    useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  // NORMAL EMAIL/PASSWORD LOGIN
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      alert("Please fill all fields");
-      return;
-    }
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
 
-    onLogin(email.split("@")[0]);
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem(
+          "user",
+          JSON.stringify(data.user)
+        );
+
+        alert("Login Successful!");
+
+        onLogin(data.user);
+      } else {
+        alert(
+          data.message ||
+          "Invalid email or password"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server Error");
+    }
+  };
+
+  // GOOGLE LOGIN
+  const handleGoogleLogin = () => {
+    window.location.href =
+      "http://localhost:5000/api/auth/google";
   };
 
   return (
@@ -37,7 +74,8 @@ export default function Login({ onLogin }) {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        {/* NORMAL LOGIN FORM */}
+        <form onSubmit={handleLogin}>
           <input
             type="email"
             placeholder="Email Address"
@@ -45,6 +83,7 @@ export default function Login({ onLogin }) {
             onChange={(e) =>
               setEmail(e.target.value)
             }
+            required
             className="w-full border rounded-xl px-4 py-4 mb-5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
 
@@ -60,6 +99,7 @@ export default function Login({ onLogin }) {
               onChange={(e) =>
                 setPassword(e.target.value)
               }
+              required
               className="w-full border rounded-xl px-4 py-4 pr-12 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
 
@@ -86,12 +126,29 @@ export default function Login({ onLogin }) {
           </button>
         </form>
 
-        <div className="text-center mt-8 text-slate-500">
-          <p>Demo Login</p>
-          <p>admin@ecostay.com</p>
-          <p>Password: 123456</p>
+        {/* DIVIDER */}
+        <div className="flex items-center my-6">
+          <div className="flex-1 border-t border-gray-300"></div>
+
+          <span className="px-4 text-gray-500">
+            OR
+          </span>
+
+          <div className="flex-1 border-t border-gray-300"></div>
         </div>
+
+        {/* GOOGLE LOGIN */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full border border-gray-300 py-4 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition"
+        >
+          Continue with Google
+        </button>
+
       </div>
     </div>
   );
-}
+};
+
+export default Login;

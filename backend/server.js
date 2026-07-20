@@ -1,4 +1,5 @@
 require("dotenv").config();
+const aiRoutes = require("./routes/ai");
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -24,6 +25,7 @@ app.use(passport.initialize());
 // ------------------------------
 
 app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
 
 // ------------------------------
 // MONGODB CONNECTION

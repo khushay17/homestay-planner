@@ -21,6 +21,9 @@ export default function PlanTrip({
     notes: "",
   });
 
+  const [loading, setLoading] = useState(false);
+const [error, setError] = useState("");
+
   const activityOptions = [
     "Trekking",
     "Boating",
@@ -64,39 +67,42 @@ const handleSubmit = async (e) => {
     return;
   }
 
+  setLoading(true);
+  setError("");
+
   try {
-    const response = await fetch("http://localhost:5000/api/trips", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        destination: trip.destination,
-        days: Number(trip.days),
-        travelers: Number(trip.persons),
-        budget: trip.budget,
-        travelStyle: trip.travelStyle,
-        accommodation: trip.accommodation,
-        month: trip.month,
-        activities: trip.activities,
-        notes: trip.notes,
-      }),
-    });
+    const response = await fetch(
+      "http://localhost:5000/api/ai/itinerary",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          destination: trip.destination,
+          days: Number(trip.days),
+          budget: trip.budget,
+          interests: trip.activities.join(", "),
+        }),
+      }
+    );
 
     const data = await response.json();
-    console.log("Backend Response:", data);
 
     if (!response.ok) {
-      alert(data.message);
-      return;
+      throw new Error(data.message || "Failed to generate itinerary.");
     }
 
-    // Pass backend response to Itinerary page
-    onGenerate(data);
+    onGenerate({
+  ...trip,
+  itinerary: data.itinerary,
+});
 
-  } catch (error) {
-    console.error(error);
-    alert("Unable to connect to backend.");
+  } catch (err) {
+    console.error(err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -331,11 +337,18 @@ const handleSubmit = async (e) => {
             <div className="md:col-span-2 text-center">
 
               <button
-                type="submit"
-                className="bg-green-600 hover:bg-green-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition"
-              >
-                Generate Itinerary
-              </button>
+  type="submit"
+  disabled={loading}
+  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-10 py-4 rounded-xl text-lg font-semibold transition"
+>
+  {loading ? "Generating Itinerary..." : "Generate AI Itinerary"}
+</button>
+
+{error && (
+  <p className="text-red-600 mt-4 text-center font-medium">
+    {error}
+  </p>
+)}
 
             </div>
 

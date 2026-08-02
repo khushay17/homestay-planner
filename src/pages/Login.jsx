@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Leaf, Eye, EyeOff } from "lucide-react";
+import { API_BASE_URL } from "../config/api";
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
@@ -12,7 +13,7 @@ const Login = ({ onLogin }) => {
 
     try {
       const res = await fetch(
-        "http://localhost:5000/api/auth/login",
+        `${API_BASE_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
@@ -51,8 +52,7 @@ const Login = ({ onLogin }) => {
 
   // GOOGLE LOGIN
   const handleGoogleLogin = () => {
-    window.location.href =
-      "http://localhost:5000/api/auth/google";
+    window.location.href = `${API_BASE_URL}/api/auth/google`;
   };
 
   return (

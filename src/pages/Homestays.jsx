@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { API_BASE_URL } from "../config/api";
 
 export default function Homestays({
   user,
@@ -26,7 +27,7 @@ export default function Homestays({
     try {
 
       const response = await fetch(
-  `http://localhost:5000/api/homestays?destination=${destination}`,
+  `${API_BASE_URL}/api/homestays?destination=${destination}`,
   {
     headers: {
       Authorization: `Bearer ${token}`,

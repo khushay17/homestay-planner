@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Leaf, Eye, EyeOff } from "lucide-react";
+import { API_BASE_URL } from "../config/api";
 
 export default function Signup({ onSignup, onLogin }) {
   const [name, setName] = useState("");
@@ -11,7 +12,7 @@ export default function Signup({ onSignup, onLogin }) {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

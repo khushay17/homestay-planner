@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { API_BASE_URL } from "../config/api";
 
 export default function PlanTrip({
   user,
@@ -75,7 +76,7 @@ export default function PlanTrip({
     try {
       // Generate AI itinerary
       const aiResponse = await fetch(
-        "http://localhost:5000/api/ai/itinerary",
+        `${API_BASE_URL}/api/ai/itinerary`,
         {
           method: "POST",
           headers: {
@@ -100,7 +101,7 @@ export default function PlanTrip({
 
       // Save trip to MongoDB
       const saveResponse = await fetch(
-        "http://localhost:5000/api/trips",
+        `${API_BASE_URL}/api/trips`,
         {
           method: "POST",
           headers: {

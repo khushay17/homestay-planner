@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { API_BASE_URL } from "../config/api";
 
 export default function MyTrips({
   user,
@@ -21,7 +22,7 @@ export default function MyTrips({
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/trips", {
+      const res = await fetch(`${API_BASE_URL}/api/trips`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -56,7 +57,7 @@ export default function MyTrips({
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/trips/${id}`,
+        `${API_BASE_URL}/api/trips/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -82,7 +83,7 @@ export default function MyTrips({
   const updateTrip = async (trip) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/trips/${trip._id}`,
+        `${API_BASE_URL}/api/trips/${trip._id}`,
         {
           method: "PUT",
           headers: {

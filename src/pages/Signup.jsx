@@ -30,7 +30,11 @@ export default function Signup({ onSignup, onLogin }) {
         alert("Registration Successful!");
         onSignup();
       } else {
-        alert(data.message || "Registration Failed");
+        const errorMsg =
+          data.errors && data.errors.length > 0
+            ? data.errors.map((e) => e.msg).join("\n")
+            : data.message || "Registration Failed";
+        alert(errorMsg);
       }
     } catch (err) {
       console.error(err);

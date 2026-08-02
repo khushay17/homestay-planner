@@ -153,9 +153,20 @@ router.post(
 
 // ================= GOOGLE OAUTH =================
 
+const checkGoogleAuthEnabled = (req, res, next) => {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    return res.status(400).json({
+      success: false,
+      message: "Google OAuth is not configured on this environment. Please log in using Email & Password.",
+    });
+  }
+  next();
+};
+
 // Start Google login
 router.get(
   "/google",
+  checkGoogleAuthEnabled,
   passport.authenticate("google", {
     scope: ["profile", "email"],
     session: false,
@@ -165,8 +176,9 @@ router.get(
 // Google callback
 router.get(
   "/google/callback",
+  checkGoogleAuthEnabled,
   passport.authenticate("google", {
-    failureRedirect: "http://localhost:5173",
+    failureRedirect: "/",
     session: false,
   }),
   (req, res) => {
@@ -183,8 +195,10 @@ router.get(
     const name = encodeURIComponent(req.user.name);
     const email = encodeURIComponent(req.user.email);
 
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+
     res.redirect(
-      `http://localhost:5173/?token=${token}&name=${name}&email=${email}`
+      `${clientUrl}/?token=${token}&name=${name}&email=${email}`
     );
   }
 );

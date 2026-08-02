@@ -31,15 +31,20 @@ app.use("/api/ai", aiRoutes);
 // MONGODB CONNECTION
 // ------------------------------
 
+
+console.log("URI:", process.env.MONGO_URI);
+
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 10000,
+  })
   .then(() => {
-    console.log("MongoDB Connected");
+    console.log("✅ MongoDB Connected");
   })
   .catch((err) => {
-    console.log(err);
+    console.error("FULL ERROR:");
+    console.dir(err, { depth: null });
   });
-
 // ------------------------------
 // SAMPLE HOMESTAYS
 // ------------------------------
@@ -275,7 +280,7 @@ app.get("/api/trips/search", async (req, res) => {
 });
 
 // Get single trip
-app.get("/api/trips/:id", async (req, res) => {
+app.get("/api/trips/:id", authMiddleware, async (req, res) => {
   try {
     const trip = await Trip.findById(req.params.id);
 
@@ -294,7 +299,7 @@ app.get("/api/trips/:id", async (req, res) => {
 });
 
 // Create trip
-app.post("/api/trips", async (req, res) => {
+app.post("/api/trips", authMiddleware, async (req, res) => {
   try {
     const {
       destination,
@@ -332,7 +337,7 @@ app.post("/api/trips", async (req, res) => {
 });
 
 // Update trip
-app.put("/api/trips/:id", async (req, res) => {
+app.put("/api/trips/:id", authMiddleware, async (req, res) => {
   try {
     const trip = await Trip.findById(req.params.id);
 
@@ -360,7 +365,7 @@ app.put("/api/trips/:id", async (req, res) => {
 });
 
 // Delete trip
-app.delete("/api/trips/:id", async (req, res) => {
+app.delete("/api/trips/:id",authMiddleware, async (req, res) => {
   try {
     const trip = await Trip.findById(req.params.id);
 
@@ -386,7 +391,7 @@ app.delete("/api/trips/:id", async (req, res) => {
 // HOMESTAY APIs
 // ------------------------------
 
-app.get("/api/homestays", (req, res) => {
+app.get("/api/homestays",authMiddleware, (req, res) => {
   const destination = (req.query.destination || "").toLowerCase();
 
   const result = homestays.filter(
@@ -396,7 +401,7 @@ app.get("/api/homestays", (req, res) => {
   res.json(result);
 });
 
-app.get("/api/homestays/:id", (req, res) => {
+app.get("/api/homestays/:id", authMiddleware, (req, res) => {
   const homestay = homestays.find(
     (home) => home.id === Number(req.params.id)
   );

@@ -12,6 +12,7 @@ export default function Homestays({
   const [destination, setDestination] = useState("");
   const [homestays, setHomestays] = useState([]);
   const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("token");
 
   const searchHomestays = async () => {
 
@@ -25,17 +26,26 @@ export default function Homestays({
     try {
 
       const response = await fetch(
-        `http://localhost:5000/api/homestays?destination=${destination}`
-      );
+  `http://localhost:5000/api/homestays?destination=${destination}`,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
       const data = await response.json();
 
-      setHomestays(data);
+      if (response.ok) {
+        setHomestays(data);
+      } else {
+        alert(data.message || "Failed to load homestays.");
+      }
 
     } catch (err) {
-      console.log(err);
-      alert("Unable to connect to backend.");
-    }
+  console.error(err);
+  alert("Unable to connect to backend.");
+}
 
     setLoading(false);
   };

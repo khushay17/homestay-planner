@@ -12,7 +12,7 @@ export default function PlanTrip({
   const [trip, setTrip] = useState({
     destination: "",
     days: "",
-    persons: "",
+    travelers: "",
     budget: "",
     travelStyle: "",
     accommodation: "",
@@ -22,7 +22,7 @@ export default function PlanTrip({
   });
 
   const [loading, setLoading] = useState(false);
-const [error, setError] = useState("");
+  const [error, setError] = useState("");
 
   const activityOptions = [
     "Trekking",
@@ -44,7 +44,9 @@ const [error, setError] = useState("");
     if (trip.activities.includes(activity)) {
       setTrip({
         ...trip,
-        activities: trip.activities.filter((a) => a !== activity),
+        activities: trip.activities.filter(
+          (a) => a !== activity
+        ),
       });
     } else {
       setTrip({
@@ -54,57 +56,94 @@ const [error, setError] = useState("");
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (
-    !trip.destination ||
-    !trip.days ||
-    !trip.persons ||
-    !trip.budget
-  ) {
-    alert("Please fill all required fields.");
-    return;
-  }
-
-  setLoading(true);
-  setError("");
-
-  try {
-    const response = await fetch(
-      "http://localhost:5000/api/ai/itinerary",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          destination: trip.destination,
-          days: Number(trip.days),
-          budget: trip.budget,
-          interests: trip.activities.join(", "),
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to generate itinerary.");
+    if (
+      !trip.destination ||
+      !trip.days ||
+      !trip.travelers ||
+      !trip.budget
+    ) {
+      alert("Please fill all required fields.");
+      return;
     }
 
-    onGenerate({
-  ...trip,
-  itinerary: data.itinerary,
-});
+    setLoading(true);
+    setError("");
 
-  } catch (err) {
-    console.error(err);
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      // Generate AI itinerary
+      const aiResponse = await fetch(
+        "http://localhost:5000/api/ai/itinerary",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            destination: trip.destination,
+            days: Number(trip.days),
+            budget: trip.budget,
+            interests: trip.activities.join(", "),
+          }),
+        }
+      );
+
+      const aiData = await aiResponse.json();
+
+      if (!aiResponse.ok) {
+        throw new Error(
+          aiData.message || "Failed to generate itinerary."
+        );
+      }
+
+      // Save trip to MongoDB
+      const saveResponse = await fetch(
+        "http://localhost:5000/api/trips",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem(
+              "token"
+            )}`,
+          },
+          body: JSON.stringify({
+            destination: trip.destination,
+            days: Number(trip.days),
+            travelers: Number(trip.travelers),
+            budget: trip.budget,
+            travelStyle: trip.travelStyle,
+            accommodation: trip.accommodation,
+            month: trip.month,
+            activities: trip.activities,
+            notes: trip.notes,
+          }),
+        }
+      );
+
+      const savedTrip = await saveResponse.json();
+
+      if (!saveResponse.ok) {
+        throw new Error(
+          savedTrip.message || "Failed to save trip."
+        );
+      }
+
+      alert("Trip created successfully!");
+
+      onGenerate({
+        ...savedTrip,
+        itinerary: aiData.itinerary,
+      });
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-green-50">
@@ -138,7 +177,7 @@ const handleSubmit = async (e) => {
             className="grid md:grid-cols-2 gap-6"
           >
 
-            {/* Destination */}
+                      {/* Destination */}
 
             <div>
               <label className="font-semibold block mb-2">
@@ -168,12 +207,12 @@ const handleSubmit = async (e) => {
                 name="days"
                 value={trip.days}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3"
+                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />
             </div>
 
-            {/* Persons */}
+            {/* Travelers */}
 
             <div>
               <label className="font-semibold block mb-2">
@@ -182,10 +221,10 @@ const handleSubmit = async (e) => {
 
               <input
                 type="number"
-                name="persons"
-                value={trip.persons}
+                name="travelers"
+                value={trip.travelers}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3"
+                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />
             </div>
@@ -201,7 +240,8 @@ const handleSubmit = async (e) => {
                 name="budget"
                 value={trip.budget}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3"
+                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
               >
                 <option value="">Select Budget</option>
                 <option>Low</option>
@@ -221,7 +261,7 @@ const handleSubmit = async (e) => {
                 name="travelStyle"
                 value={trip.travelStyle}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3"
+                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Choose Style</option>
                 <option>Adventure</option>
@@ -242,7 +282,7 @@ const handleSubmit = async (e) => {
                 name="accommodation"
                 value={trip.accommodation}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3"
+                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Select</option>
                 <option>Homestay</option>
@@ -262,7 +302,7 @@ const handleSubmit = async (e) => {
                 name="month"
                 value={trip.month}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3"
+                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Select Month</option>
                 <option>January</option>
@@ -280,8 +320,6 @@ const handleSubmit = async (e) => {
               </select>
             </div>
 
-            {/* Empty column */}
-
             <div></div>
 
             {/* Activities */}
@@ -292,9 +330,7 @@ const handleSubmit = async (e) => {
               </label>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-
                 {activityOptions.map((activity) => (
-
                   <label
                     key={activity}
                     className="flex items-center gap-2"
@@ -307,15 +343,13 @@ const handleSubmit = async (e) => {
                       }
                     />
 
-                    {activity}
+                    <span>{activity}</span>
                   </label>
-
                 ))}
-
               </div>
             </div>
 
-            {/* Notes */}
+                        {/* Additional Notes */}
 
             <div className="md:col-span-2">
               <label className="font-semibold block mb-2">
@@ -328,27 +362,33 @@ const handleSubmit = async (e) => {
                 placeholder="Any special requirements..."
                 value={trip.notes}
                 onChange={handleChange}
-                className="w-full border rounded-xl p-3"
+                className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
 
-            {/* Button */}
+            {/* Error Message */}
+
+            {error && (
+              <div className="md:col-span-2">
+                <p className="text-red-600 text-center font-medium">
+                  {error}
+                </p>
+              </div>
+            )}
+
+            {/* Submit Button */}
 
             <div className="md:col-span-2 text-center">
 
               <button
-  type="submit"
-  disabled={loading}
-  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-10 py-4 rounded-xl text-lg font-semibold transition"
->
-  {loading ? "Generating Itinerary..." : "Generate AI Itinerary"}
-</button>
-
-{error && (
-  <p className="text-red-600 mt-4 text-center font-medium">
-    {error}
-  </p>
-)}
+                type="submit"
+                disabled={loading}
+                className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-10 py-4 rounded-xl text-lg font-semibold transition"
+              >
+                {loading
+                  ? "Generating Itinerary..."
+                  : "Generate AI Itinerary"}
+              </button>
 
             </div>
 
@@ -359,6 +399,7 @@ const handleSubmit = async (e) => {
       </div>
 
       <Footer />
+
     </div>
   );
 }
